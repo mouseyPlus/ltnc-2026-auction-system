@@ -54,7 +54,7 @@ Cài đặt & chạy
 
 Yêu cầu: JDK 21, Maven 3.8+
 
-# Buildmvn clean package# Chạy testmvn test# Khởi động server (chạy trước)... # Chạy client (mở nhiều terminal = nhiều client)...
+Buildmvn clean package# Chạy testmvn test# Khởi động server (chạy trước)... # Chạy client (mở nhiều terminal = nhiều client)...
 
 
 Thành viên
