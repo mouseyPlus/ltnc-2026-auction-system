@@ -1,90 +1,98 @@
-Quy ước đóng góp
+# Hướng Dẫn Đóng Góp Mã Nguồn (Contributing Guidelines)
 
-Quy tắc làm việc chung của nhóm. Đọc kỹ trước khi commit lần đầu — mọi PR không tuân thủ sẽ bị yêu cầu sửa trước khi merge.
+Cảm ơn tất cả các thành viên đã tham gia phát triển dự án Online Auction System. Để đảm bảo dự án vận hành mượt mà, mã nguồn sạch đẹp, tránh xung đột (conflict) và đáp ứng đầy đủ tiêu chí chấm điểm của môn học, tất cả thành viên bắt buộc phải tuân thủ quy trình dưới đây.
 
-    Yêu cầu môn học: commit thường xuyên lên GitHub (không chấp nhận 1 commit duy nhất cuối kỳ), và mọi thành viên phải giải thích được toàn bộ mã nguồn — nếu không, cả nhóm 0 điểm.
+---
 
-Phân công module từng người: xem bảng Thành viên trong README.
-1. Branch
+## 3 Nguyên Tắc Sinh Tồn (Bắt Buộc)
 
-main         ← chỉ nhận PR từ dev (đã bảo vệ, cần 1 approval)dev          ← nhánh tích hợp hàng ngày — mọi PR merge vào đâyfeature/...  ← tạo từ dev, code ở đây
+1. Hiểu 100% mã nguồn do mình đưa lên: Theo quy định của giảng viên, nếu bất kỳ thành viên nào không giải thích được một dòng code bất kỳ trong bài, TOÀN BỘ NHÓM SẼ BỊ 0 ĐIỂM. Hãy đảm bảo bạn hiểu rõ logic (đặc biệt là code tham khảo hoặc sinh bởi AI) trước khi tạo Pull Request.
+2. Commit thường xuyên: Mỗi tuần mỗi cá nhân phải có ít nhất 2–3 commits. Tuyệt đối KHÔNG làm việc offline rồi dồn 1 commit duy nhất vào cuối kỳ.
+3. Không push trực tiếp lên main hoặc dev: Mọi thay đổi đều phải thực hiện trên nhánh tính năng riêng (feature/*) và thông qua Pull Request (PR) có review.
 
-Tên branch: feature/<ten> · fix/<ten> · test/<ten>Ví dụ: feature/gui-dang-nhap, fix/lost-update-bid
-Quy trình chuẩn
+---
 
-git checkout dev && git pull origin dev      # 1. lấy code mới nhấtgit checkout -b feature/ten-tinh-nang        # 2. tạo branch riêng# ... code, commit thường xuyên ...git push -u origin feature/ten-tinh-nang     # 3. push lên# 4. Tạo PR vào dev trên GitHub → CI xanh + 1 approval → merge
+## Quy Trình Nhánh (Git Branching Strategy)
 
-LƯU Ý: Không push trực tiếp vào dev hoặc main.
-2. Commit message — Conventional Commits
+Dự án áp dụng mô hình Gitflow đơn giản gồm 2 nhánh chính và các nhánh tính năng:
 
-<type>(<scope>): <mô tả ngắn>
+* main: Nhánh sản phẩm ổn định, chỉ merge từ dev vào cuối các cột mốc lớn (Milestones) hoặc khi nộp bài.
+* dev: Nhánh tích hợp chính. Tất cả tính năng mới sau khi review xong sẽ gộp vào đây.
+* Nhánh tính năng / sửa lỗi cá nhân: Xuất phát từ dev và đặt tên theo quy chuẩn:
+  - feature/ten-chuc-nang (VD: feature/login-ui, feature/auto-bidding)
+  - bugfix/ten-loi (VD: bugfix/socket-reconnect-issue)
+  - test/ten-test-case (VD: test/auction-concurrency-junit)
 
-Type	Dùng khi
-feat	Tính năng mới
-fix	Sửa bug
-test	Thêm/sửa unit test
-docs	README, diagram, tài liệu
-refactor	Sửa code, không đổi hành vi
-style	Chỉ format, không đổi logic
-chore	Config, CI, dependencies
+---
 
-Scope: auth user item auction bid gui server network storage ci
+## Quy Trình 5 Bước Làm Việc Hàng Ngày
 
-Ví dụ:
+### 1. Đồng bộ code mới nhất từ dev
+Trước khi bắt đầu viết code mới, luôn cập nhật nhánh dev cá nhân:
+git checkout dev
+git pull origin dev
 
-    feat(auth): them man hinh dang ky
-    fix(auction): chap nhan bid thap hon gia hien tai
-    test(storage): test save/load khi server restart
+### 2. Tạo nhánh làm việc mới
+git checkout -b feature/ten-tinh-nang-cua-ban
 
-Nguyên tắc:
+### 3. Viết code & Lưu lại (Commit)
+Nên chia nhỏ công việc thành nhiều commit ngắn gọn thay vì 1 commit khổng lồ.
+git add .
+git commit -m "feat: implement bid validation logic"
 
-    1 commit = 1 thay đổi logic, mô tả đọc lại 1 tháng sau vẫn hiểu
-    Commit mỗi khi xong một phần việc — không gom dồn
-    CẤM: update, fix bug, aaa, lam not phan cuoi
+### 4. Đẩy nhánh lên GitHub
+git push origin feature/ten-tinh-nang-cua-ban
 
-3. Pull Request
+### 5. Tạo Pull Request (PR) & Yêu cầu Review
+1. Truy cập Repo trên GitHub, bấm Compare & pull request.
+2. Đảm bảo chọn Base: dev <- Compare: feature/ten-tinh-nang-cua-ban.
+3. Điền đầy đủ mô tả công việc vào Form PR (đã làm gì, cách test).
+4. Phân công (Assign) ít nhất 1 thành viên khác trong nhóm làm Reviewer.
 
-    PR từ feature/... → dev
+---
 
-    Tiêu đề theo format commit: feat(gui): man hinh danh sach phien dau gia
+## Quy Chuẩn Đặt Tên Commit (Conventional Commits)
 
-    Mô tả: làm gì — làm thế nào — ảnh hưởng module nào
+Tin nhắn commit phải rõ ràng, bắt đầu bằng các tiền tố chuẩn sau:
 
-    Điều kiện merge (đủ cả 3):
-         CI (build + test) chạy xanh
-         Có ít nhất 1 approval (mặc định leader review)
-         Không conflict với dev
+- feat: Thêm tính năng/giao diện mới (VD: feat: add bid history line chart)
+- fix: Sửa lỗi trong code (VD: fix: resolve race condition in concurrency test)
+- docs: Cập nhật tài liệu (README, CONTRIBUTING...) (VD: docs: update setup instructions)
+- style: Format code, sửa khoảng trắng, định dạng (VD: style: reformat code according to Checkstyle)
+- refactor: Cấu trúc lại code - không đổi logic/tính năng (VD: refactor: extract AuctionFactory method)
+- test: Bổ sung hoặc chỉnh sửa Unit Test (JUnit) (VD: test: add unit test for InvalidBidException)
+- chore: Cập nhật cấu hình Maven, .gitignore, CI/CD (VD: chore: update pom.xml dependencies)
 
-    Merge xong → xóa branch feature
+---
 
-    CI trên dev đỏ → dừng việc khác, fix ngay trước khi làm tiếp
+## Quy Trình Code Review & Merge PR
 
-4. Coding convention
+Một Pull Request chỉ được phép Merge vào nhánh dev khi đáp ứng đủ các điều kiện sau:
 
-    Google Java Style Guide (Checkstyle bật từ tuần 9 — viết đúng ngay từ đầu, khỏi sửa lại hàng trăm dòng sau)
-    Class PascalCase · method/biến camelCase · hằng số UPPER_SNAKE_CASE
-    Không giữ code chết / code bị comment — git đã lưu history rồi
-    Code trùng lặp → tách method/class (DRY)
+1. GitHub Actions (CI) màu xanh: Lớp CI/CD phải build thành công (mvn clean test không báo lỗi compile hay gãy test).
+2. Đã qua Checkstyle: Không vi phạm các quy tắc đặt tên và trình bày code của Google Java Style.
+3. Có ít nhất 1 Reviewer Approved: Thành viên được assign review đã đọc code, đặt câu hỏi (nếu có) và nhấn Approve.
+4. Giải trình được Code: Người tạo PR sẵn sàng giải thích cơ chế hoạt động của đoạn code trong buổi họp tuần của nhóm.
 
-5. Kiểm thử
+Mẹo cho Reviewer: Đừng ngần ngại để lại comment hỏi "Đoạn code này xử lý case gì?" hoặc "Tại sao lại dùng ReentrantLock ở đây thay vì synchronized?" trên PR của đồng đội. Điều này giúp cả nhóm cùng hiểu bài!
 
-    Logic quan trọng (bid hợp lệ, chuyển trạng thái phiên, concurrency, save/load) phải có JUnit test
-    PR đổi logic → kèm test tương ứng
-    Mục tiêu coverage ≥ 60% (deadline tuần 10)
+---
 
-6. Khi gặp vấn đề
+## Quy Chuẩn Lập Trình (Coding Standards)
 
-    Bị block → tạo Issue, gán người phụ trách, mô tả rõ đang kẹt ở đâu
-    Conflict / lỗi build trên dev → báo nhóm ngay, tuyệt đối không force push
+* Style guide: Tuân thủ theo Google Java Style Guide (đã tích hợp plugin Checkstyle trong Maven).
+* Đặt tên:
+  - Class / Interface: PascalCase (VD: AuctionManager, InvalidBidException)
+  - Method / Variable: camelCase (VD: currentBid, processNewBid())
+  - Constant: UPPER_SNAKE_CASE (VD: MAX_BID_INCREMENT, DEFAULT_PORT)
+* Xử lý ngoại lệ:
+  - KHÔNG nuốt ngoại lệ (catch trống hoặc chỉ printStackTrace mà không xử lý).
+  - Sử dụng các Custom Exceptions đã được định nghĩa trong package com.auction.exception.
+* Đa luồng (Concurrency): Bắt buộc phải xử lý thread-safe cho các tài nguyên dùng chung (ví dụ: danh sách phiên đấu giá, số tiền bid hiện tại) bằng synchronized hoặc ReentrantLock.
 
-Phụ lục: gợi ý format khi gõ commit (khuyến khích)
+---
 
-Tạo file .gitmessage ở gốc repo:
+##  Báo Cáo Tiến Độ & Kỷ Luật Nhóm
 
-<type>(<scope>): <mo ta ngan># type: feat | fix | test | docs | refactor | style | chore# scope: auth | user | item | auction | bid | gui | server | network | storage | ci
-
-Chạy 1 lần duy nhất trên máy mình:
-
-git config commit.template .gitmessage
-
-→ Mỗi lần git commit, gợi ý hiện sẵn (dòng # không bị đưa vào message).
+* Họp Walkthrough (Cuối tuần): Dành 20 phút demo giao diện/chức năng và giải thích các đoạn code phức tạp vừa viết cho cả nhóm.
+* Tôn trọng Deadline: Nếu gặp khó khăn/blocker quá 24h, bắt buộc phải đăng lên nhóm để các thành viên khác hỗ trợ, tuyệt đối không im lặng giấu lỗi.
