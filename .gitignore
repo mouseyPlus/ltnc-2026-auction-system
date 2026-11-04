@@ -1,3 +1,4 @@
+
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
@@ -13,6 +14,11 @@ target/
 *.iml
 *.ipr
 
+### IntelliJ IDEA ###
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+.kotlin
 ### Eclipse ###
 .apt_generated
 .classpath
@@ -22,12 +28,17 @@ target/
 .springBeans
 .sts4-cache
 
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
+
 build/
 !**/src/main/**/build/
 !**/src/test/**/build/
