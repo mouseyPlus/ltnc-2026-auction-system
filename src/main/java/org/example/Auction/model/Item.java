@@ -1,11 +1,12 @@
+package org.example.Auction.model;
 public abstract class Item {
     protected Long id;
     protected String name;
-    protected Long sellerId;
-    public Item(Long id, String name, Long sellerId) {
+    protected Long ownerId;
+    public Item(Long id, String name, Long ownerId) {
         this.id = id;
         this.name = name;
-        this.sellerId = sellerId;
+        this.ownerId = ownerId;
     }
     public Long getId() {
         return id;
@@ -13,7 +14,7 @@ public abstract class Item {
     public String getName() {
         return name;
     }
-    public Long getSellerId() {
-        return sellerId;
+    public Long getOwnerId() {
+        return ownerId;
     }
 }

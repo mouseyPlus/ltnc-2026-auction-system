@@ -1,3 +1,6 @@
+package org.example.Auction.manager;
+import org.example.Auction.model.Auction;
+
 import java.util.List;
 import java.util.ArrayList;
 public class AuctionManager {

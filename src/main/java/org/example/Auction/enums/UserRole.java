@@ -1,5 +1,7 @@
+package org.example.Auction.enums;
+
 public enum UserRole {
-    USER,
+    ADMIN,
     BIDDER,
     SELLER
 }

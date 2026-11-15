@@ -1,3 +1,7 @@
+package org.example.Auction.model;
+import org.example.Auction.enums.UserRole;
+
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 public class User {
