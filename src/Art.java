@@ -1,5 +1,5 @@
 public class Art extends Item {
-    public Art(int id, String name, double startingPrice, double currentPrice, int sellerId) {
-        super(id, name, startingPrice, currentPrice, sellerId);
+    public Art(Long id, String name, Long sellerId) {
+        super(id, name, sellerId);
     }
 }

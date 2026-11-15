@@ -1,13 +1,15 @@
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 public class Auction {
-    private int id;
+    private Long id;
     private Item item;
+    private Integer startingPrice;
     private List<Bid> bids;
     private AuctionStatus status;
-    public Auction(int id, Item item) {
+    public Auction(Long id, Item item, Integer startingPrice) {
         this.id = id;
         this.item = item;
+        this.startingPrice = startingPrice;
         this.bids = new ArrayList<>();
         this.status = AuctionStatus.OPEN;
     }

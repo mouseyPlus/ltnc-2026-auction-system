@@ -1,14 +1,19 @@
 public abstract class Item {
-    protected int id;
+    protected Long id;
     protected String name;
-    protected double startingPrice;
-    protected double currentPrice;
-    protected int sellerId;
-    public Item(int id, String name, double startingPrice, double currentPrice, int sellerId) {
+    protected Long sellerId;
+    public Item(Long id, String name, Long sellerId) {
         this.id = id;
         this.name = name;
-        this.startingPrice = startingPrice;
-        this.currentPrice = currentPrice;
         this.sellerId = sellerId;
+    }
+    public Long getId() {
+        return id;
+    }
+    public String getName() {
+        return name;
+    }
+    public Long getSellerId() {
+        return sellerId;
     }
 }
