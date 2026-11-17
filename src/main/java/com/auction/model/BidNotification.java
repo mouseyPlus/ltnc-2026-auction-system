@@ -1,6 +1,6 @@
-package org.example.Auction.model;
+package com.auction.model;
 
-import org.example.Auction.pattern.Observer;
+import com.auction.pattern.Observer;
 
 public class BidNotification implements Observer {
     private String observerName;

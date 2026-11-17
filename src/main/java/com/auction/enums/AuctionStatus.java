@@ -1,4 +1,4 @@
-package org.example.Auction.enums;
+package com.auction.enums;
 public enum AuctionStatus {
     OPEN,
     RUNNING,

@@ -1,8 +1,17 @@
-package org.example.Auction.model;
-import org.example.Auction.pattern.Observer;
-import org.example.Auction.enums.AuctionStatus;
+package com.auction.model;
+import com.auction.pattern.Observer;
+import com.auction.enums.AuctionStatus;
 import java.util.ArrayList;
 import java.util.List;
+/*
+        * AUCTIONS
+ * -----------------
+         * id -> id
+ * item -> item_id
+ * sellerId -> seller_id
+ * startingPrice -> starting_price
+ * status -> status
+ */
 public class Auction {
     private Long id;
     private Item item;
@@ -22,11 +31,17 @@ public class Auction {
     }
     public void placeBid(Bid bid) {
         bids.add(bid);
+        notifyObservers(bid);
     }
     public void addObserver(Observer observer) {
         observers.add(observer);
     }
     public void removeObserver(Observer observer) {
         observers.remove(observer);
+    }
+    private void notifyObservers(Bid bid) {
+        for (Observer observer : observers) {
+            observer.Update(bid);
+        }
     }
 }

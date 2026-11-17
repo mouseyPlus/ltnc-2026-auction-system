@@ -1,5 +1,5 @@
-package org.example.Auction.manager;
-import org.example.Auction.model.Auction;
+package com.auction.manager;
+import com.auction.model.Auction;
 
 import java.util.List;
 import java.util.ArrayList;

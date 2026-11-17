@@ -1,8 +1,8 @@
-package org.example.Auction.factory;
-import org.example.Auction.model.Art;
-import org.example.Auction.model.Electronics;
-import org.example.Auction.model.Item;
-import org.example.Auction.model.Vehicle;
+package com.auction.factory;
+import com.auction.model.Art;
+import com.auction.model.Electronics;
+import com.auction.model.Item;
+import com.auction.model.Vehicle;
 public class ItemFactory {
     public static Item createItem(String type, Long id, String name, Long ownerId) {
         switch (type.toLowerCase()) {

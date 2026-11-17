@@ -1,4 +1,11 @@
-package org.example.Auction.model;
+package com.auction.model;
+/*
+ * ITEMS
+ * -----------------
+ * id -> id
+ * name -> name
+ * ownerId -> owner_id
+ */
 public abstract class Item {
     protected Long id;
     protected String name;

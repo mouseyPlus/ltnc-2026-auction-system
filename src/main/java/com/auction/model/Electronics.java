@@ -1,4 +1,4 @@
-package org.example.Auction.model;
+package com.auction.model;
 public class Electronics extends Item {
     public Electronics(Long id, String name, Long ownerId) {
         super(id, name, ownerId);
