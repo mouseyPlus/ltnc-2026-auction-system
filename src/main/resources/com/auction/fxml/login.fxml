@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.auction.controller.LoginController"
+      alignment="CENTER"
+      spacing="18"
+      styleClass="login-container">
+
+    <padding>
+        <Insets top="40" right="40" bottom="40" left="40"/>
+    </padding>
+
+    <Label text="ONLINE AUCTION" styleClass="app-title"/>
+    <Label text="Log in to your account" styleClass="subtitle"/>
+
+    <VBox spacing="12" maxWidth="380">
+
+        <Label text="Username / Phone / Email"/>
+
+        <TextField fx:id="identifierField"
+                   promptText="Enter username, phone or email"/>
+
+        <Label text="Password"/>
+
+        <StackPane>
+            <PasswordField fx:id="passwordField"
+                           promptText="Enter your password"/>
+            <TextField fx:id="visiblePasswordField"
+                       promptText="Enter your password"
+                       visible="false"
+                       managed="false"/>
+        </StackPane>
+
+        <CheckBox fx:id="showPasswordCheckBox"
+                  text="Show password"/>
+
+        <Button text="LOG IN"
+                maxWidth="Infinity"
+                onAction="#handleLogin"
+                styleClass="login-button"/>
+
+        <Label fx:id="messageLabel"
+               wrapText="true"
+               styleClass="error-label"/>
+
+        <HBox alignment="CENTER" spacing="5">
+            <Label text="Haven't got an account?"/>
+            <Label text="|"/>
+            <Hyperlink text="Sign up"
+                       onAction="#handleSignUp"
+                       styleClass="auth-link"/>
+        </HBox>
+
+    </VBox>
+</VBox>

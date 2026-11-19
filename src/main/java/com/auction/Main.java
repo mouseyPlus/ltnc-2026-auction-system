@@ -1,0 +1,33 @@
+package com.auction;
+
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+
+public class Main extends Application {
+
+    @Override
+    public void start(Stage stage) throws Exception {
+        FXMLLoader loader = new FXMLLoader(
+                Main.class.getResource("/com/auction/fxml/login.fxml")
+        );
+
+        Scene scene = new Scene(loader.load(), 900, 600);
+
+        scene.getStylesheets().add(
+                Main.class.getResource("/com/auction/css/style.css")
+                        .toExternalForm()
+        );
+
+        stage.setTitle("Online Auction System");
+        stage.setScene(scene);
+        stage.setMinWidth(700);
+        stage.setMinHeight(500);
+        stage.show();
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}

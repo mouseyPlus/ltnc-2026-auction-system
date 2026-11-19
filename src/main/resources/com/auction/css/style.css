@@ -1,0 +1,44 @@
+.login-container {
+    -fx-background-color: #f4f6fb;
+    -fx-font-family: "Segoe UI";
+}
+
+.app-title {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1e293b;
+}
+
+.subtitle {
+    -fx-font-size: 17px;
+    -fx-text-fill: #64748b;
+}
+
+.text-field,
+.password-field {
+    -fx-background-color: white;
+    -fx-border-color: #cbd5e1;
+    -fx-border-radius: 7;
+    -fx-background-radius: 7;
+    -fx-padding: 12;
+    -fx-font-size: 14px;
+}
+
+.login-button {
+    -fx-background-color: #2563eb;
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 7;
+    -fx-padding: 12;
+    -fx-cursor: hand;
+}
+
+.login-button:hover {
+    -fx-background-color: #1d4ed8;
+}
+
+.message-label {
+    -fx-text-fill: #475569;
+    -fx-font-size: 13px;
+}

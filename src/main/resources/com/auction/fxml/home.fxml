@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.auction.controller.HomeController"
+      alignment="CENTER"
+      spacing="20"
+      styleClass="login-container">
+
+    <Label text="ONLINE AUCTION"
+           styleClass="app-title"/>
+
+    <Label fx:id="welcomeLabel"
+           text="Welcome!"
+           styleClass="subtitle"/>
+
+    <Label text="You have successfully logged in."/>
+
+</VBox>

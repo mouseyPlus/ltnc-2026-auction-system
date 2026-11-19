@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.auction.controller.SignUpController"
+      alignment="CENTER"
+      spacing="14"
+      styleClass="login-container">
+
+    <padding>
+        <Insets top="25" right="40" bottom="25" left="40"/>
+    </padding>
+
+    <Label text="SIGN UP" styleClass="app-title"/>
+    <Label text="Create your auction account" styleClass="subtitle"/>
+
+    <VBox spacing="8" maxWidth="380">
+
+        <Label text="Username"/>
+        <TextField fx:id="usernameField"
+                   promptText="Enter your username"/>
+
+        <Label text="Phone number"/>
+        <TextField fx:id="phoneField"
+                   promptText="Enter your phone number"/>
+
+        <Label text="Email"/>
+        <TextField fx:id="emailField"
+                   promptText="Enter your email address"/>
+
+        <Label text="Password"/>
+
+        <StackPane>
+            <PasswordField fx:id="passwordField"
+                           promptText="Create a strong password"/>
+            <TextField fx:id="visiblePasswordField"
+                       promptText="Create a strong password"
+                       visible="false"
+                       managed="false"/>
+        </StackPane>
+
+        <Label text="Confirm password"/>
+
+        <StackPane>
+            <PasswordField fx:id="confirmPasswordField"
+                           promptText="Re-enter your password"/>
+            <TextField fx:id="visibleConfirmPasswordField"
+                       promptText="Re-enter your password"
+                       visible="false"
+                       managed="false"/>
+        </StackPane>
+
+        <CheckBox fx:id="showPasswordCheckBox"
+                  text="Show passwords"/>
+
+        <Label text="At least 8 characters, uppercase, lowercase, number and special character"
+               wrapText="true"
+               styleClass="hint-label"/>
+
+        <Button text="SIGN UP"
+                maxWidth="Infinity"
+                onAction="#handleRegister"
+                styleClass="login-button"/>
+
+        <Label fx:id="messageLabel"
+               wrapText="true"
+               styleClass="error-label"/>
+
+        <HBox alignment="CENTER" spacing="5">
+            <Label text="Already have an account?"/>
+            <Hyperlink text="Log in"
+                       onAction="#handleBackToLogin"
+                       styleClass="auth-link"/>
+        </HBox>
+
+    </VBox>
+</VBox>
