@@ -16,8 +16,9 @@ public class LoginController {
     @FXML private TextField identifierField;
     @FXML private PasswordField passwordField;
     @FXML private TextField visiblePasswordField;
-    @FXML private CheckBox showPasswordCheckBox;
     @FXML private Label messageLabel;
+    @FXML private Button togglePasswordButton;
+
 
     @FXML
     private void initialize() {
@@ -25,19 +26,24 @@ public class LoginController {
                 passwordField.textProperty()
         );
 
-        visiblePasswordField.visibleProperty().bind(
-                showPasswordCheckBox.selectedProperty()
-        );
-        visiblePasswordField.managedProperty().bind(
-                visiblePasswordField.visibleProperty()
-        );
+        visiblePasswordField.setVisible(false);
+        visiblePasswordField.setManaged(false);
 
-        passwordField.visibleProperty().bind(
-                showPasswordCheckBox.selectedProperty().not()
-        );
-        passwordField.managedProperty().bind(
-                passwordField.visibleProperty()
-        );
+        passwordField.setVisible(true);
+        passwordField.setManaged(true);
+    }
+
+    @FXML
+    private void handleTogglePassword() {
+        boolean show = !visiblePasswordField.isVisible();
+
+        visiblePasswordField.setVisible(show);
+        visiblePasswordField.setManaged(show);
+
+        passwordField.setVisible(!show);
+        passwordField.setManaged(!show);
+
+//        togglePasswordButton.setText(show ? "◉" : "◎");
     }
 
     @FXML
