@@ -2,6 +2,7 @@ package com.auction.database;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -40,8 +41,8 @@ class DatabaseInitializerTest {
 
             try (var statement = connection.prepareStatement("""
                     INSERT INTO USERS (
-                        user_id, username, email, password_hash, display_name, created_at_utc
-                    ) VALUES (1, 'user1', 'user1@example.com', 'hash', 'Test User',
+                        user_id, username, email, phone, password_hash, display_name, created_at_utc
+                    ) VALUES (1, 'user1', 'user1@example.com', '0900000001', 'hash', 'Test User',
                               '2026-01-01T00:00:00Z')
                     """)) {
                 statement.executeUpdate();
@@ -52,7 +53,7 @@ class DatabaseInitializerTest {
             try (var statement = connection.prepareStatement(
                     "SELECT username FROM USERS WHERE user_id = 1");
                  ResultSet resultSet = statement.executeQuery()) {
-                resultSet.next();
+                assertTrue(resultSet.next());
                 assertEquals("user1", resultSet.getString(1));
             }
         }

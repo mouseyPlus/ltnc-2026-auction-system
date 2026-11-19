@@ -61,10 +61,63 @@ class SchemaTest {
     }
 
     @Test
+    void usersTableContainsPhoneColumn() throws Exception {
+        try (Connection connection = DriverManager.getConnection("jdbc:sqlite::memory:")) {
+            executeSchema(connection);
+
+            try (Statement statement = connection.createStatement();
+                 ResultSet resultSet = statement.executeQuery("PRAGMA table_info(USERS)")) {
+                boolean phoneColumnFound = false;
+                while (resultSet.next()) {
+                    if ("phone".equals(resultSet.getString("name"))) {
+                        phoneColumnFound = true;
+                        break;
+                    }
+                }
+                assertTrue(phoneColumnFound);
+            }
+        }
+    }
+
+    @Test
+    void userCannotHaveNullPhone() throws Exception {
+        try (Connection connection = DriverManager.getConnection("jdbc:sqlite::memory:")) {
+            executeSchema(connection);
+
+            assertThrows(SQLException.class, () -> executeUpdate(connection, """
+                    INSERT INTO USERS (
+                        user_id, username, email, phone, password_hash, display_name, created_at_utc
+                    ) VALUES (1, 'user1', 'user1@example.com', NULL, 'hash', 'User 1',
+                              '2026-01-01T00:00:00Z')
+                    """));
+        }
+    }
+
+    @Test
+    void userPhonesMustBeUnique() throws Exception {
+        try (Connection connection = DriverManager.getConnection("jdbc:sqlite::memory:")) {
+            executeSchema(connection);
+            insertValidUser(connection, 1, "0900000001");
+
+            assertThrows(SQLException.class, () -> insertValidUser(connection, 2, "0900000001"));
+        }
+    }
+
+    @Test
+    void usersWithDifferentPhonesCanBeInserted() throws Exception {
+        try (Connection connection = DriverManager.getConnection("jdbc:sqlite::memory:")) {
+            executeSchema(connection);
+            insertValidUser(connection, 1, "0900000001");
+
+            assertDoesNotThrow(() -> insertValidUser(connection, 2, "0900000002"));
+        }
+    }
+
+    @Test
     void activeAuctionIsUniquePerItem() throws Exception {
         try (Connection connection = DriverManager.getConnection("jdbc:sqlite::memory:")) {
             executeSchema(connection);
-            insertValidUser(connection, 1);
+            insertValidUser(connection, 1, "0900000001");
             insertValidItem(connection, 1, 1);
             insertAuction(connection, 1, 1, "OPEN");
 
@@ -76,7 +129,7 @@ class SchemaTest {
     void historicalAuctionAllowsNewActiveAuction() throws Exception {
         try (Connection connection = DriverManager.getConnection("jdbc:sqlite::memory:")) {
             executeSchema(connection);
-            insertValidUser(connection, 1);
+            insertValidUser(connection, 1, "0900000001");
             insertValidItem(connection, 1, 1);
             insertAuction(connection, 1, 1, "FINISHED");
 
@@ -84,12 +137,13 @@ class SchemaTest {
         }
     }
 
-    private void insertValidUser(Connection connection, int userId) throws SQLException {
+    private void insertValidUser(Connection connection, int userId, String phone) throws SQLException {
         executeUpdate(connection, """
                 INSERT INTO USERS (
-                    user_id, username, email, password_hash, display_name, created_at_utc
-                ) VALUES (%d, 'user%d', 'user%d@example.com', 'hash', 'User %d', '2026-01-01T00:00:00Z')
-                """.formatted(userId, userId, userId, userId));
+                    user_id, username, email, phone, password_hash, display_name, created_at_utc
+                ) VALUES (%d, 'user%d', 'user%d@example.com', '%s', 'hash', 'User %d',
+                          '2026-01-01T00:00:00Z')
+                """.formatted(userId, userId, userId, phone, userId));
     }
 
     private void insertValidItem(Connection connection, int itemId, int ownerId) throws SQLException {
