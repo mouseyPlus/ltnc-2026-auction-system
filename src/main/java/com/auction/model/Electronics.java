@@ -1,6 +1,6 @@
 package com.auction.model;
 public class Electronics extends Item {
-    public Electronics(Long id, String name, Long ownerId) {
-        super(id, name, ownerId);
+    public Electronics(Long id, String name, Long ownerId, String description, String category) {
+        super(id, name, ownerId,description, category);
     }
 }

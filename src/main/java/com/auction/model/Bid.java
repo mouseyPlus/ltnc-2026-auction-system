@@ -2,18 +2,21 @@ package com.auction.model;
 import java.time.Instant;
 /*
  * BIDS
- * -----------------
- * auctionId -> auction_id
- * bidderId -> bidder_id
- * amount -> amount
- * timestamp -> created_at
+ * -----------------------------
+ * id              -> bid_id
+ * auctionId       -> auction_id
+ * bidderId        -> bidder_id
+ * amount          -> amount_vnd
+ * timestamp       -> bid_time_utc
  */
 public class Bid {
+    private Long bidId;
     private Long bidderId;
     private Long amount;
     private Instant timestamp;
     private Long auctionId;
-    public Bid(Long bidderId, Long amount,Long auctionId) {
+    public Bid(Long bidId, Long bidderId, Long amount,Long auctionId) {
+        this.bidId = bidId;
         this.bidderId = bidderId;
         this.amount = amount;
         this.timestamp = Instant.now();

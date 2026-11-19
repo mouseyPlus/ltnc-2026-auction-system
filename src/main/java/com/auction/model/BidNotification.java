@@ -8,7 +8,7 @@ public class BidNotification implements Observer {
         this.observerName = observerName;
     }
     @Override
-    public void Update(Bid bid) {
-        System.out.println(observerName + " received notification: New bid " + bid.getAmount());
+    public void update(Bid bid) {
+        System.out.println(observerName + " New bid found: " + bid.getAmount());
     }
 }

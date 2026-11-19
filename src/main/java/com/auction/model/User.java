@@ -1,41 +1,52 @@
 package com.auction.model;
 
 import com.auction.enums.Role;
-
+import java.util.Collections;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 /*
- * Entity Mapping
- *
  * USERS
- * -----------------
- * id -> id
- * username -> username
- * password -> password
+ * -----------------------------
+ * id              -> user_id
+ * username        -> username
+ * email           -> email
+ * passwordHash    -> password_hash
+ * displayName     -> display_name
+ * createdAtUtc    -> created_at_utc
+ * active          -> is_active
  *
  * USER_ROLES
- * -----------------
- * user_id -> USERS.id
- * role -> BIDDER | SELLER | ADMIN
+ * -----------------------------
+ * user_id
+ * role
  */
 public abstract class User {
     protected Long id;
     protected String username;
-    protected String password;
+    protected String email;
+    protected String passwordHash;
+    protected String displayName;
+    protected Instant createdAtUtc;
     protected Set<Role> roles;
+    protected boolean isActive;
     public User(Long id,
                 String username,
-                String password) {
+                String password, String email,String displayName, boolean isActive) {
         this.id = id;
         this.username = username;
-        this.password = password;
+        this.passwordHash = password;
         this.roles = new HashSet<>();
+        this.email = email;
+        this.displayName = displayName;
+        this.isActive = false;
+        this.createdAtUtc = Instant.now();
     }
     public void addRole(Role role) {
         roles.add(role);
     }
     public Set<Role> getRoles() {
-        return roles;
+        return Collections.unmodifiableSet(roles);
     }
     public Long getId() {
         return id;
