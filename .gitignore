@@ -63,3 +63,6 @@ build/
 **/secrets.properties
 **/*-secrets.properties
 **/*_secrets.properties
+
+### Local SQLite databases and backups ###
+/data/
