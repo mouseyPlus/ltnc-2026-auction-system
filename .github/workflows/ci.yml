@@ -27,12 +27,12 @@ jobs:
           java-version: '25'
           cache: maven
 
-      - name: Build and test
+      - name: Build, test, and check style
         shell: bash
         run: |
           if [[ -f ./mvnw ]]; then
             chmod +x ./mvnw
-            ./mvnw --batch-mode clean test
+            ./mvnw --batch-mode clean verify
           else
-            mvn --batch-mode clean test
+            mvn --batch-mode clean verify
           fi
