@@ -44,12 +44,12 @@ public final class MockAuthService {
             return "Please fill in all fields.";
         }
 
-        if (!username.matches("[A-Za-z0-9_]{3,30}")) {
-            return "Username must be 3-30 letters, numbers or underscores.";
+        if (!username.matches("[A-Za-z0-9._]{3,30}")) {
+            return "Username must be 3-30 letters, numbers, dots and underscores.";
         }
 
-        if (!phone.matches("0[0-9]{9}")) {
-            return "Enter a valid 10-digit Vietnamese phone number.";
+        if (!phone.matches("0[0-9]{9,10}")) {
+            return "Phone number must start with 0 and contain 10 or 11 digits.";
         }
 
         if (!EMAIL.matcher(email).matches()) {
