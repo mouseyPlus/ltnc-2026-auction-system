@@ -43,7 +43,6 @@ public abstract class User {
         this.displayName = displayName;
         this.isActive = isActive;
         this.createdAtUtc = createdAtUtc;
-        this.roles = roles;
     }
     public void addRole(Role role) {
         roles.add(role);
