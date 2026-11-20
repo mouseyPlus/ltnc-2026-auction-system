@@ -71,6 +71,12 @@ public class Auction {
             if (bid.getBidderId().equals(this.sellerId)) {
                 throw new InvalidBidException("Seller cannot bid on own auction");
             }
+            if (!bid.getAuctionId().equals(id)) {
+                throw new InvalidBidException("Bid does not belong to this auction");
+            }
+            if (Instant.now().isAfter(endTimeUtc)) {
+                throw new AuctionClosedException("Auction has expired");
+            }
             if (!isValidBid(bid)) {
                 throw new InvalidBidException("Bid amount must be greater than current price");
             }
