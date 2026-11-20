@@ -15,17 +15,28 @@ public class Bid {
     private Long amount;
     private Instant timestamp;
     private Long auctionId;
-    public Bid(Long bidId, Long bidderId, Long amount,Long auctionId) {
+
+    public Bid(Long bidId, Long bidderId,Long auctionId, Long amount, Instant timestamp) {
         this.bidId = bidId;
         this.bidderId = bidderId;
         this.amount = amount;
-        this.timestamp = Instant.now();
+        this.timestamp = timestamp;
         this.auctionId = auctionId;
+    }
+
+    public Long getAuctionId() {
+        return auctionId;
+    }
+    public Instant getTimestamp() {
+        return timestamp;
+    }
+    public Long getAmount() {
+        return amount;
     }
     public Long getBidderId() {
         return bidderId;
     }
-    public Long getAmount() {
-        return amount;
+    public Long getBidId() {
+        return bidId;
     }
 }

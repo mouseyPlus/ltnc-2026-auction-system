@@ -1,7 +1,10 @@
 package com.auction.model;
+import com.auction.exceptions.AuctionClosedException;
+import com.auction.exceptions.InvalidBidException;
 import com.auction.pattern.Observer;
 import com.auction.enums.AuctionStatus;
 
+import java.util.Collections;
 import java.util.concurrent.locks.ReentrantLock;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -19,26 +22,28 @@ import java.util.List;
  */
 public class Auction {
     private Long id;
-    private Item item;
+    private Long itemId;
     private Long startingPrice;
     private Long sellerId;
-    private Instant startTime;
-    private Instant endTime;
+    private Instant startTimeUtc;
+    private Instant endTimeUtc;
     private List<Bid> bids;
     private AuctionStatus status;
     private ReentrantLock bidlock = new ReentrantLock();
     private List<Observer> observers;
-    public Auction(Long id, Item item,Long sellerId, Long startingPrice, Instant startTime, Instant endTime) {
+    public Auction(Long id, Long itemId,Long sellerId, Long startingPrice, Instant startTimeUtc, Instant endTimeUtc, AuctionStatus status) {
         if (startingPrice <= 0) {
             throw new IllegalArgumentException("Must be higher than 0" );
         }
         this.id = id;
-        this.item = item;
+        this.itemId = itemId;
         this.sellerId = sellerId;
         this.startingPrice = startingPrice;
         this.bids = new ArrayList<>();
         this.observers = new ArrayList<>();
-        this.status = AuctionStatus.OPEN;
+        this.status = status;
+        this.startTimeUtc = startTimeUtc;
+        this.endTimeUtc = endTimeUtc;
     }
     public Long getCurrentPrice() {
         if (bids.isEmpty()) {
@@ -46,21 +51,28 @@ public class Auction {
         }
         return bids.get(bids.size() - 1).getAmount();
     }
-    private boolean isValidBid(Bid bid) {
-        return bid.getAmount() > getCurrentPrice();
+    private long calculateMinimumIncrement() {
+        long increment = (long) Math.ceil(getCurrentPrice() * 0.01);
+        return Math.max(1L, increment);
     }
-    public boolean placeBid(Bid bid) {
+    private boolean isValidBid(Bid bid) {
+        long currentPrice = getCurrentPrice();
+        long minimumBid = currentPrice
+                + calculateMinimumIncrement();
+        return bid.getAmount() >= minimumBid;
+    }
+    public boolean placeBid(Bid bid) throws InvalidBidException, AuctionClosedException {
         bidlock.lock();
         try {
             if (status != AuctionStatus.OPEN
                     && status != AuctionStatus.RUNNING) {
-                return false;
+                throw new AuctionClosedException("Auction is not running");
             }
-            if (!bid.getBidderId().equals(this.id)) {
-                return false;
+            if (bid.getBidderId().equals(this.sellerId)) {
+                throw new InvalidBidException("Seller cannot bid on own auction");
             }
             if (!isValidBid(bid)) {
-                return false;
+                throw new InvalidBidException("Bid amount must be greater than current price");
             }
             bids.add(bid);
             notifyObservers(bid);
@@ -105,5 +117,57 @@ public class Auction {
         for (Observer observer : observers) {
             observer.update(bid);
         }
+    }
+
+    public AuctionStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(AuctionStatus status) {
+        this.status = status;
+    }
+
+    public Instant getStartTimeUtc() {
+        return startTimeUtc;
+    }
+
+    public void setStartTimeUtc(Instant startTimeUtc) {
+        this.startTimeUtc = startTimeUtc;
+    }
+
+    public Instant getEndTimeUtc() {
+        return endTimeUtc;
+    }
+
+    public void setEndTimeUtc(Instant endTimeUtc) {
+        this.endTimeUtc = endTimeUtc;
+    }
+
+    public Long getItemId() {
+        return itemId;
+    }
+
+    public void setItemId(Long itemId) {
+        this.itemId = itemId;
+    }
+
+    public Long getStartingPrice() {
+        return startingPrice;
+    }
+
+    public void setStartingPrice(Long startingPrice) {
+        this.startingPrice = startingPrice;
+    }
+
+    public Long getSellerId() {
+        return sellerId;
+    }
+
+    public void setSellerId(Long sellerId) {
+        this.sellerId = sellerId;
+    }
+
+    public List<Bid> getBids() {
+        return Collections.unmodifiableList(bids);
     }
 }

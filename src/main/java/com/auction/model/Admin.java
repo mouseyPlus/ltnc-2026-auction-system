@@ -1,8 +1,14 @@
 package com.auction.model;
 import com.auction.enums.Role;
+
+import java.time.Instant;
+import java.util.Set;
+
 public class Admin extends User {
-    public Admin(Long id, String username, String password, String email,String displayName, boolean isActive) {
-        super(id, username, password, email, displayName, isActive);
+    public Admin(Long id,
+                 String username, String phone,
+                 String password, String email,String displayName, boolean isActive, Instant createdAtUtc, Set<Role> roles) {
+        super(id, username,phone, password, email, displayName, isActive, createdAtUtc, roles);
         addRole(Role.ADMIN);
     }
 }

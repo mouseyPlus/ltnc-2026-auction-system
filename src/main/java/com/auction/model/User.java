@@ -24,6 +24,7 @@ import java.util.Set;
 public abstract class User {
     protected Long id;
     protected String username;
+    protected String phone;
     protected String email;
     protected String passwordHash;
     protected String displayName;
@@ -31,16 +32,18 @@ public abstract class User {
     protected Set<Role> roles;
     protected boolean isActive;
     public User(Long id,
-                String username,
-                String password, String email,String displayName, boolean isActive) {
+                String username, String phone,
+                String password, String email,String displayName, boolean isActive, Instant createdAtUtc, Set<Role> roles) {
         this.id = id;
         this.username = username;
+        this.phone = phone;
         this.passwordHash = password;
         this.roles = new HashSet<>();
         this.email = email;
         this.displayName = displayName;
-        this.isActive = false;
-        this.createdAtUtc = Instant.now();
+        this.isActive = isActive;
+        this.createdAtUtc = createdAtUtc;
+        this.roles = roles;
     }
     public void addRole(Role role) {
         roles.add(role);
@@ -54,4 +57,47 @@ public abstract class User {
     public String getUsername() {
         return username;
     }
+    public String getPhone(){
+        return phone;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public String getDisplayName(){
+        return displayName;
+    }
+
+    public Instant getCreatedAtUtc(){
+        return createdAtUtc;
+    }
+
+    public boolean isActive(){
+        return isActive;
+    }
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
 }
