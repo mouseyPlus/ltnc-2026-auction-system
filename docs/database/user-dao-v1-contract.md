@@ -45,8 +45,14 @@ Registration behavior belongs to the service layer:
 
 ## 3. UserDAO v1 API
 
-`com.auction.database.UserDAO` will use `ConnectionProvider` for connection
-access and is expected to expose:
+The implementation is the concrete class `com.auction.database.UserDAO`.
+It receives `ConnectionProvider` through constructor injection:
+
+```java
+public UserDAO(ConnectionProvider connectionProvider)
+```
+
+`UserDAO` is expected to expose:
 
 ```java
 Long createUser(User user) throws SQLException;
@@ -67,6 +73,30 @@ All SQLite access methods propagate `SQLException` to the service layer. SQL
 exceptions must not be silently converted into `false`, including duplicate
 identifier and constraint violations.
 
+### Invalid arguments
+
+- `createUser(null)` throws `IllegalArgumentException`.
+- `createUser` rejects a preassigned, non-null user ID with
+  `IllegalArgumentException`.
+- `createUser` with a null or empty role set throws `IllegalArgumentException`.
+- `findById`, `updateRoles`, and `deactivateUser` reject null or non-positive IDs
+  with `IllegalArgumentException`.
+- `updateUser(null)` throws `IllegalArgumentException`.
+- `findByIdentifier(null)` or a blank identifier throws
+  `IllegalArgumentException`.
+
+Phone formats, identifier normalization, password strength, and other
+field-format rules belong to the domain or service layer unless explicitly
+adopted by the DAO contract.
+
+### Identifier ambiguity
+
+`findByIdentifier` must detect when one identifier text matches more than one
+user across `USERS.username`, `USERS.email`, or `USERS.phone`. It must throw
+unchecked application exception
+`com.auction.database.UserIdentifierAmbiguityException`; it must never silently
+return an arbitrary matching user.
+
 ## 4. Field Ownership
 
 ### Database-managed fields
@@ -76,6 +106,15 @@ identifier and constraint violations.
   `updateUser`.
 - `is_active` is initially active and changed only through `deactivateUser`.
 - Role rows are managed by `createUser` and `updateRoles`.
+- A newly created `User` may have a null ID.
+- SQLite generates the ID during `createUser`.
+- After the complete creation transaction commits successfully, the generated
+  positive ID is assigned exactly once to the User.
+- If creation fails or rolls back, the User's ID remains null.
+- Ordinary setters must not change a persisted ID.
+- The preferred entity mechanism is a guarded
+  `assignGeneratedId(Long id)` operation or an equivalent domain mechanism.
+- Persisted IDs must be positive.
 
 ### Editable through `updateUser`
 
@@ -106,17 +145,28 @@ Both active and inactive users must be returned by `findById` and
 `findByIdentifier`. Authentication services decide whether to reject inactive
 accounts. UserDAO must not physically delete users.
 
+Deactivation return semantics are:
+
+- Existing active user: `true`.
+- Existing inactive user: `true`.
+- Unknown user: `false`.
+
+Repeated deactivation is idempotent.
+
 ## 5. Transaction Requirements
 
 ### User creation
 
 `createUser` must use one transaction:
 
-1. Insert the `USERS` row.
-2. Obtain the generated `user_id`.
-3. Insert every supplied role into `USER_ROLES`.
-4. Commit only after all role inserts succeed.
-5. Roll back the user insert if any role insert or constraint operation fails.
+1. Require the User ID to be null; reject a preassigned ID.
+2. Insert the `USERS` row.
+3. Obtain the generated `user_id`.
+4. Insert every supplied role into `USER_ROLES`.
+5. Commit only after all role inserts succeed.
+6. Roll back the user insert if any role insert or constraint operation fails.
+7. Assign the generated ID to the User only after commit succeeds.
+8. Leave the User ID null if commit or any earlier creation step fails.
 
 The method returns the generated `Long` ID.
 
@@ -135,9 +185,14 @@ and creates no role records.
 
 ### Transactions and connections
 
-The DAO must preserve the connection's isolation boundary, close connections,
-statements, and result sets using try-with-resources, and never commit or roll
-back unexpectedly outside the operation's transaction.
+`UserDAO` obtains each connection through `ConnectionProvider`. It owns and closes
+every connection it obtains, along with statements and result sets, using
+try-with-resources. Each complete transactional operation uses one connection.
+
+The DAO controls the transaction boundary for each of its own operations.
+`createUser` and `updateRoles` commit only after the complete operation succeeds
+and roll back on failure. No connection or transaction is shared with unrelated
+caller operations.
 
 ## 6. OOP Integration Checklist
 
