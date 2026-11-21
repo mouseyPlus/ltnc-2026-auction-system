@@ -1,7 +1,7 @@
-import java.io.BufferedReader;
-import java.io.PrintWriter;
+import java.io.ObjectOutputStream;
+import java.io.ObjectInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.EOFException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
@@ -9,17 +9,17 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ServerTest {
     private ServerSocket serverSocket;
-    private static int currentPrice = 100;  // set up static initial price
-    private final List<PrintWriter> clientWriters = new CopyOnWriteArrayList<>(); // save every Client's output for broadcasting
+
+    public static final int PORT = 8888;
+    private static long currentPrice = 100;
+    private static String highestBidder = "Unknown";
+    private final List<ObjectOutputStream> clientOutputs = new CopyOnWriteArrayList<>(); // save every Client's output for broadcasting
 
     public void start(int port) throws IOException {
-        // start Server and make some hello hi log
         serverSocket = new ServerSocket(port);
         System.out.println("AUCTION SERVER STARTED ON PORT [" + port + "].");
         System.out.println("========================");
 
-        // multi-thread is here guyssssssss
-        // it can hold infinite entries
         while (true) {
             new ClientHandler(serverSocket.accept(), this).start(); // clientSocket and THIS own server
         }
@@ -37,35 +37,45 @@ public class ServerTest {
         }
     }
 
-    // synchronization to avoid data conflict
-    public synchronized String getPrice() {
-        return "Current price: " + currentPrice + ".";
-    }
-    public synchronized String placeBid(int newPrice) {
-        if (newPrice > currentPrice) {
-            currentPrice = newPrice;
-            return "[BID_SUCCESSFUL]: New highest price is " + currentPrice + " by someone!";
+    private void send(ObjectOutputStream out, AuctionMessageTest msg) throws IOException {
+        synchronized (out) {
+            out.writeObject(msg);
+            out.flush();
+            out.reset(); // avoid referencing to old Object
         }
-        else if (newPrice <= 0) return "[STUPIDITY_ALERT]: ARE YOU STUPID, USER?";
-        else return "[BID_REJECTED]: New price must be HIGHER than " + currentPrice + ".";
     }
 
-    // announce bidding updates to all Clients
-    public void broadcast(String message) {
-        for (PrintWriter writer : clientWriters) {
-            writer.println(message);
+    public void broadcast(AuctionMessageTest msg) {             // announce bidding updates to all Clients
+        for (ObjectOutputStream out : clientOutputs) {
+            try {
+                send(out, msg);
+            } catch (IOException e) {
+                clientOutputs.remove(out);
+            }
         }
+    }
+
+    public synchronized AuctionMessageTest placeBid(String bidderName, long newPrice) {          // synchronization
+        if (newPrice > currentPrice) {
+            currentPrice = newPrice;
+            highestBidder = bidderName;
+            return AuctionMessageTest.bidSuccessful(currentPrice, highestBidder);
+        }
+        if (newPrice <= 0) return AuctionMessageTest.bidRejected(currentPrice, highestBidder,
+                "[STUPIDITY_ALERT]: ARE YOU STUPID, USER?");
+        return AuctionMessageTest.bidRejected(currentPrice, highestBidder,
+                "New price must be HIGHER than " + currentPrice + ".");
     }
 
     public void stop() {
         closeQuietly(serverSocket);
     }
 
-    private static class ClientHandler extends Thread {
+    private static class ClientHandler extends Thread {                 // how to handle 1 Client
         private final ServerTest server;
         private final Socket clientSocket;
-        private PrintWriter out;
-        private BufferedReader in;
+        private ObjectOutputStream out;
+        private ObjectInputStream in;
 
         public ClientHandler(Socket clientSocket, ServerTest server) {  // constructor
             this.clientSocket = clientSocket;
@@ -75,62 +85,63 @@ public class ServerTest {
         @Override
         public void run() {
             try {
-                out = new PrintWriter(clientSocket.getOutputStream(), true);
-                in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                server.clientWriters.add(out);                          // add Clients to broadcast
+                out = new ObjectOutputStream(clientSocket.getOutputStream());
+                out.flush();
+                in = new ObjectInputStream(clientSocket.getInputStream());
 
-                out.println("[START]: Initial price: " + currentPrice); // Server's FIRST ever message to Client
+                server.clientOutputs.add(out);      // add Client to broadcast
+                String bidderName = "Anonymous";
 
-                String inputLine;
-                while ((inputLine = in.readLine()) != null) {           // Read Client's price
-                    String line = inputLine.trim();
-                    System.out.println("Someone texted: " + line);      // Client logs will be posted on Server
-
-                    /*
-                    if Client requests quit
-                    quit log is printed on Server
-                    Server accepts and SENDS [QUIT] to Client
-                     */
-
-                    if (".".equals(line)) {
-                        System.out.println("Someone quit bidding.");
-                        out.println("[QUIT]: Auction terminated.");
-                        break;
+                while (true) {
+                    Object obj = in.readObject();
+                    if (!(obj instanceof AuctionMessageTest msg)) {
+//                        server.send(out, AuctionMessageTest.error("Unsupported bidding format."));
+                        continue;
                     }
 
-                    /*
-                    parse String_line to int_price
-                    if not a number (stupid bidder)
-                    curse them in Client
-                    if a number (good bidder)
-                    ClientHandler uses placeBid from Server
-                    and returns to Client
-                     */
+                    if (msg.getSender() != null && !msg.getSender().isBlank()) {        // make sure non-null and unblank
+                        bidderName = msg.getSender().trim();
+                    }
 
-                    try {
-                        int price = Integer.parseInt(line);
-                        System.out.println("Someone bid " + price);
+                    switch (msg.getType()) {
+                        case JOIN -> {
+                            System.out.println(bidderName + " joined the auction.");
+                            server.send(out, AuctionMessageTest.start(currentPrice, highestBidder));
+                        }
+                        case BID -> {
+                            if (msg.getBidAmount() == null) {
+                                server.send(out, AuctionMessageTest.error("fill in A NUMBER."));
+                                break;
+                            }
 
-                        /*
-                        "result" holds the bidding message: [SUCCESSFUL, REJECTED, STUPIDITY]
-                        if [BID_SUCCESSFUL]
-                        show for ALL CLIENTS (so that they are aware of price changes)
-                        if not
-                        continue only showing for that bidder (price remains unchanged)
-                         */
+                            long price = msg.getBidAmount();
+                            System.out.println(bidderName + " bid " + price);
 
-                        String result = server.placeBid(price);
-                        if (result.startsWith("[BID_SUCCESSFUL]")) server.broadcast(result);
-                        else out.println(result);
+                            AuctionMessageTest result = server.placeBid(bidderName, price);
 
-                    } catch (NumberFormatException e) {
-                        out.println("[ERROR]: fill in A NUMBER.");
+                            if (result.getType() == AuctionMessageTest.Type.BID_SUCCESSFUL) {
+                                server.broadcast(result);
+                            } else {
+                                server.send(out, result);
+                            }
+                        }
+                        case QUIT -> {
+                            System.out.println(bidderName + " quit bidding.");
+                            server.send(out, AuctionMessageTest.quit(bidderName));
+                            return;
+                        }
+                        default ->
+                                server.send(out, AuctionMessageTest.error("Unhandled message type: " + msg.getType()));
                     }
                 }
+            } catch (EOFException e) {
+                System.out.println("Client disconnected unexpectedly.");
             } catch (IOException e) {
+                System.out.println("Connection error with client: " + e.getMessage());
+            } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             } finally {
-                server.clientWriters.remove(out); // remove Client from broadcast
+                server.clientOutputs.remove(out);
                 closeQuietly(in);
                 closeQuietly(out);
                 closeQuietly(clientSocket);
@@ -141,7 +152,7 @@ public class ServerTest {
     public static void main(String[] args) {
         ServerTest server = new ServerTest();
         try {
-            server.start(8001);
+            server.start(PORT);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {

@@ -1,7 +1,6 @@
-import java.io.BufferedReader;
-import java.io.PrintWriter;
+import java.io.ObjectOutputStream;
+import java.io.ObjectInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.Scanner;
 
@@ -11,41 +10,39 @@ public class ClientTest {
         final int PORT = 8001;
 
         try {
-
-            /*
-            Socket clientSocket: creates a Thread
-            Scanner scanner: makes price input
-            PrintWriter out: sends price to Server, then,
-            BufferedReader in: receives response from Server.
-             */
-
-            Socket clientSocket = new Socket(host, PORT);
-            PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-            BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            Socket clientSocket = new Socket("127.0.0.1", ServerTest.PORT);
+            ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
+            out.flush();
+            ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
             Scanner scanner = new Scanner(System.in);
 
-            // welcome hello hi smth message. print on Client
             System.out.println("SUCCESSFULLY CONNECTED TO " + host + ":" + PORT + ".");
             System.out.println("Use numbers to bid. Press '.' to quit bidding.");
             System.out.println("============================");
 
-            String initialPrice = in.readLine();
-            // Client's FIRST ever message from Server
-            // [START]: Initial price...
+            System.out.print("-- Enter your name: ");
+            String bidderName = scanner.nextLine().trim();
+            out.writeObject(AuctionMessageTest.join(bidderName));
+            out.flush();
 
+            String initialPrice = in.readLine();                        // Client's FIRST ever message from Server
             if (initialPrice != null) System.out.println(initialPrice); // Makes sure non-null
-            System.out.print(">> Quick! Insert higher price >> ");
+
+//            System.out.print(">> Quick! Insert higher price >> ");
 
             Runnable runnable = () -> {
                 try {
-                    String serverMsg;
-                    while ((serverMsg = in.readLine()) != null) {
-                        System.out.println("[SERVER]: " + serverMsg);
-                        if ("[QUIT]: Auction terminated.".equals(serverMsg)) break;
-
-                        System.out.print(">> Quick! Insert higher price >> ");
+                    while (true) {
+                        Object obj = in.readObject();
+                        if (obj instanceof AuctionMessageTest message) {
+                            System.out.println("\n[SERVER]: " + message);
+                            if (message.getType() == AuctionMessageTest.Type.QUIT) break;
+                        }
+                            System.out.print(">> Quick! Insert higher price >> ");
                     }
-                } catch (IOException e) {
+                } catch (IOException _) {
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
                 }
             };
 
@@ -54,27 +51,21 @@ public class ClientTest {
             readerThread.start();
 
             while (true) {
-                String price = scanner.nextLine();      // Client INPUTS a price
+                String line = scanner.nextLine().trim();        // Client INPUTS a price
+                out.writeObject(line);                          // Client SENDS to Server
 
-                /*
-                if Client really wanna bid
-                it has to send price to Server FIRST
-                then receive response from Server SECOND
-                and [BID_SUCCESSFUL] or [BID_REJECTED] or [STUPIDITY_ALERT] will be printed on Client
-                 */
-
-                out.println(price);
-
-                /*
-                if Client wanna quit, press '.'
-                it has to request quit FIRST
-                then receive acceptance from Server SECOND
-                and [QUIT] will be printed on Client.
-                 */
-
-                if (".".equals(price.trim())) {
+                if (".".equals(line)) {
+                    out.writeObject(AuctionMessageTest.quit(bidderName));
                     readerThread.join(1000);
                     break;
+                }
+                try {
+                    long price = Long.parseLong(line);
+                    out.writeObject(AuctionMessageTest.bid(bidderName, price));
+                    out.flush();
+                } catch (NumberFormatException e) {
+                    System.out.println("[ERROR]: fill in A NUMBER.");
+                    System.out.print(">> Quick! Insert higher price >> ");
                 }
             }
         } catch (IOException e) {
